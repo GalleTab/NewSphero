@@ -6,11 +6,6 @@ Creado en Octubre 2022
 Versión "2.0"
 """
 
-### Realizar Matríz de Velocidad, Distancia Tiempo
-
-
-
-
 # Calculas distancia entre coordenadas para sacar el tiempo
 
 #Librerias y dependencias
@@ -33,7 +28,7 @@ frameWidth = 1280
 frameHeight = 720
 # camBrightness = 150
 bigname = "SB-AA12"
-smallname = "SM-6F73"
+smallname = "SM-830E"
 
 
 ### Empezar la Captura ###
@@ -106,13 +101,15 @@ def findColor(img, myColors, myLocations):
         #print("fc.dems", dems[0])
         #print("fc.dems", dems[0])
 
+        #scv2.circle(imgOut, (dems[0], dems[1]), 3, (255, 0, 255), cv2.FILLED)
         if dems[0] != 0 and dems[1] != 0:
             points[0] = dems[0]
             points[1] = dems[1]
         pinNum += 1
+    #cv2.imshow("img", mask)
 
 
-### Encontrar los colores a los que se va a apuntar###
+### Función para encontrar los contornos de los colores ###
 def getContours(img):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     x, y, w, h = 0, 0, 0, 0
@@ -122,7 +119,9 @@ def getContours(img):
             cv2.drawContours(img, cnt, -1, (255, 0, 0), 3)
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+            #print(approx)
             x, y, w, h = cv2.boundingRect(approx)
+            #cv2.rectangle(img, (x, y), (w + x, h + y), (0, 255, 0), 2)
             x = x + (w // 2)
             y = y + (h // 2)
         print(x, ",", y, end="\r")
@@ -130,7 +129,7 @@ def getContours(img):
 
 
 
-### Ecuentra el Pin del color mas cercano ###
+### Función para encontrar el Pin de la lata mas cercana al Sphero ###
 def findNextPin(pinCoords, roboCoords):
     num = 0
     count = 0
@@ -148,16 +147,21 @@ def findNextPin(pinCoords, roboCoords):
     return num
 
 
-### Encontrar locación del pin al que se apuntará ###
+### Función para encontrar la locación del Pin al que se va a apuntar)
 def getPinLocation(numPull):
     while numPull > 0:
         success, img = cap.read()
+        #cv2.imshow("imagen", img)
         imgResult = img.copy()
 
         ### Setter la perspectiva de acuerdo a la imagen y a la matrix previamente configurada ###
         imgOut = cv2.warpPerspective(img, matrix, (width, height))
         imgOut = cv2.resize(imgOut, (1344, 577))
+
+        #cv2.imshow("warp", imgOut)
+        #findColor(imgOut, myColors_sphero, roboCoords)
         findColor(imgOut, myColors_pins, pinCoords)
+        #cv2.imshow("Result", imgOut)
         numPull -= 1
 
 
@@ -168,24 +172,28 @@ def getSpheroLocation(numPull):
         ### Setting up warp perspective ###
         imgOut = cv2.warpPerspective(img, matrix, (width, height))
         imgOut = cv2.resize(imgOut, (1344, 577))
+        # cv2.imshow("warp", imgOut)
+        #print(myColors_sphero)
         findColor(imgOut, myColors_sphero, roboCoords)
+        #cv2.imshow("Result", imgOut)
         numPull -= 1
 
 def findangle(current,target):
 
     radians = math.atan2(target[1] - current[1], target[0] - current[0])
-    degrees = math.degrees(radians)
-    if degrees < 0:
-       degrees = 360 + degrees
-    degrees = int(degrees)
-    #if(radians < 0):
-     #   radians = (radians * -1)
-    #if radians > 0:
-    #    radians = radians - 360
-    #    radians = (radians * -1)
-    #    pass
-    #radians= int(radians)
-    return degrees
+    #degrees = math.degrees(radians)
+    print("HECHO!")
+    #if degrees < 0:
+       #degrees = 360 + degrees
+    #degrees = int(degrees)
+    if(radians < 0):
+        radians = (radians * -1)
+    if radians > 0:
+        radians = radians - 360
+        radians = (radians * -1)
+        pass
+    radians= int(radians)
+    return radians
 
 def distanciaPuntos(start, target):
     x = math.pow(((target[0])-(start[0])), 2)
@@ -198,7 +206,7 @@ def main():
 
     ### Conectar con Sphero Bolt "SM'830E" ###
 
-    toy = scanner.find_toy(toy_name=smallname)
+    toy = scanner.find_toy(toy_name=bigname)
     
     with SpheroEduAPI(toy) as bolt:  
         print("Hecho!")
@@ -226,8 +234,7 @@ def main():
         bolt.set_back_led(255)  # Bright
         sleep(7)
         bolt.set_main_led(Color(r=0, g=0, b=255))
-        print("Listo... Luz Trasera Calibrado")
-        sleep(10)
+        print("Listo...")
 
 
         ### Calibrar ###
@@ -255,11 +262,13 @@ def main():
         offset_angle = findangle(start,target)
 
         print("Angulo: ",offset_angle,"grados")
-        bolt.reset_aim()
         # Con el ángulo de la calibración podemos ver a donde esta orientado el sphero
         # el ángulo se actualiza para que el sphero este orientado al eje X
-        print("Sphero Calibrado...")
-        sleep(10)
+        bolt.set_heading(offset_angle)
+
+
+
+
 
         ### Primer Pin ###
         start = [roboCoords[0][0], roboCoords[0][1]]
@@ -281,13 +290,13 @@ def main():
 
         print("Mandando comando...")
         sleep(.25)
-        bolt.roll(0, 0, 1)
+        bolt.roll(angle, 0, 1)
         sleep(.75)
         bolt.stop_roll()
         bolt.roll(angle, 50, 1)
         sleep(2.5)
         bolt.stop_roll()
-        bolt.roll(0, 0, 1)
+        bolt.roll(angle, 0, .25)
         sleep(.25)
 
         ### Regresar

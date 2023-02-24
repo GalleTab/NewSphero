@@ -23,6 +23,7 @@ from spherov2 import scanner
 from spherov2.sphero_edu import SpheroEduAPI
 from spherov2.types import Color
 from spherov2.adapter.tcp_adapter import get_tcp_adapter
+#from pynput import keyboard as kb
 
 
 
@@ -33,7 +34,7 @@ frameWidth = 1280
 frameHeight = 720
 # camBrightness = 150
 bigname = "SB-AA12"
-smallname = "SM-6F73"
+smallname = "SM-830E"
 
 
 ### Empezar la Captura ###
@@ -70,7 +71,7 @@ matrix = cv2.getPerspectiveTransform(pts1, pts2)
 
 
 ### Pin Color Data ###
-myColors_pins = [[40, 50, 50, 90, 255, 255],  # Green Pin
+myColors_pins = [[50, 50, 50, 80, 255, 255],  # Green Pin
                 # [100, 150, 125, 105, 255, 255],  # Blue pin
                 # [85, 75, 165, 125, 230, 255],  # Blue pin
                  [3, 100, 100, 15, 255, 255]]  # orange pin
@@ -79,7 +80,7 @@ myColors_pins = [[40, 50, 50, 90, 255, 255],  # Green Pin
 pinCoords = [[0, 0], [0, 0], [0, 0]]
 
 ### Sphero Color Data###
-myColors_sphero = [[75, 0, 255, 179, 255, 255]]  # test val
+myColors_sphero = [[100, 150, 125, 105, 255, 255]]  # test val
 
 ### Sphero Coordinate Array ###
 roboCoords = [[0, 0]]
@@ -144,7 +145,7 @@ def findNextPin(pinCoords, roboCoords):
         elif short_dist <= dist:
             short_dist = dist
             num = count
-        count += 1
+    count += 1
     return num
 
 
@@ -175,16 +176,10 @@ def findangle(current,target):
 
     radians = math.atan2(target[1] - current[1], target[0] - current[0])
     degrees = math.degrees(radians)
+    print("HECHO!")
     if degrees < 0:
-       degrees = 360 + degrees
+        degrees = 360 + degrees
     degrees = int(degrees)
-    #if(radians < 0):
-     #   radians = (radians * -1)
-    #if radians > 0:
-    #    radians = radians - 360
-    #    radians = (radians * -1)
-    #    pass
-    #radians= int(radians)
     return degrees
 
 def distanciaPuntos(start, target):
@@ -192,6 +187,11 @@ def distanciaPuntos(start, target):
     y = math.pow(((start[1])-(target[1])), 2)
     dist = (math.sqrt(x+y))
     return dist
+
+
+
+
+
 
 def main():
     print("Connecting to Sphero...", end =" ")
@@ -219,12 +219,8 @@ def main():
 
 
         ### Calibrar Dirección ###
-        print("Calibrando Luz Trasera")
-        bolt.set_main_led(Color(r=0, g=0, b=0))
-        bolt.set_back_led(0)  # Dim
-        sleep(3)
-        bolt.set_back_led(255)  # Bright
-        sleep(7)
+        #calibrarDireccion(bolt)
+
         bolt.set_main_led(Color(r=0, g=0, b=255))
         print("Listo... Luz Trasera Calibrado")
         sleep(10)
@@ -233,17 +229,8 @@ def main():
         ### Calibrar ###
         angle  = 0
         start = [roboCoords[0][0], roboCoords[0][1]]
-        sleep(1)
-        bolt.roll(0, 0, 2)
-        sleep(.75)
-        bolt.stop_roll()
         bolt.roll(0, 10, .5)
         sleep(1)
-        bolt.stop_roll()
-        sleep(1)
-        bolt.roll(0, 0, 2)
-        sleep(1.25)
-        bolt.stop_roll()
         oldCoords = roboCoords
         print("Recolectando punto del Sphero...")
         getSpheroLocation(25)
@@ -254,12 +241,16 @@ def main():
         print("Calculando Angulo...", end =" ")
         offset_angle = findangle(start,target)
 
-        print("Angulo: ",offset_angle,"grados")
-        bolt.reset_aim()
+        print("Angulo sobre eje X: ",offset_angle,"grados")
         # Con el ángulo de la calibración podemos ver a donde esta orientado el sphero
         # el ángulo se actualiza para que el sphero este orientado al eje X
-        print("Sphero Calibrado...")
-        sleep(10)
+        #print("Sphero Calibrado...")
+        #sleep(4)
+
+
+
+
+
 
         ### Primer Pin ###
         start = [roboCoords[0][0], roboCoords[0][1]]
@@ -268,6 +259,8 @@ def main():
         dist = distanciaPuntos(start, target)
         dist_cm = dist / 8.75
         t = dist_cm / 50
+        print("El tiempo a avanzar es de: ", t, " Segundos")
+        sleep(3)
         
 
         print("Calculando Angulo...", end =" ")
@@ -281,18 +274,16 @@ def main():
 
         print("Mandando comando...")
         sleep(.25)
-        bolt.roll(0, 0, 1)
+        bolt.roll(angle, 0, 1)
         sleep(.75)
-        bolt.stop_roll()
-        bolt.roll(angle, 50, 1)
+        bolt.roll(angle, 50, t)
         sleep(2.5)
-        bolt.stop_roll()
-        bolt.roll(0, 0, 1)
+        bolt.roll(angle, 0, 1)
         sleep(.25)
-
+        bolt.reset_aim()
         ### Regresar
         angle = 180
-        angle = angle - offset_angle
+        #angle = angle - 180
         if angle < 0:
             print("Es negativo")
             angle = angle + 360
@@ -300,15 +291,12 @@ def main():
         sleep(.25)
         bolt.roll(angle, 0, 1)
         sleep(.75)
-        bolt.stop_roll()
         bolt.roll(angle, 50, t)
         sleep(1)
-        bolt.stop_roll()
         bolt.roll(angle, 0, 1)
         sleep(.75)
-        bolt.stop_roll()
 
-
+        '''
         ### Second Pin ###
         print("Recolectando puntos del Sphero...")
         getSpheroLocation(25)
@@ -397,6 +385,7 @@ def main():
         bolt.roll(angle, 0, 1)
         sleep(1)
         bolt.stop_roll()
+        '''
 
         print("Terminado...")
 

@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 def ColorTracking():
-    cap = cv2.VideoCapture(0) #inicializar camara computadora
+    cap = cv2.VideoCapture(1) #inicializar camara computadora
     centers = np.empty #Crear matriz para 
     while True:
 
@@ -13,24 +13,24 @@ def ColorTracking():
         _, img = cap.read()
 
         #cambiar dimensiones de la imagen
-        img = cv2.resize(img, (1000, 850))
+        img = cv2.resize(img, (1240, 720))
 
         #Covertir el frame de imagen en BGR(RGB) a HSV(hue-saturaton-value)
         hsvFrame = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # Rango para el color rojo
-        red_l = np.array([170, 120, 120], np.uint8)
-        red_u = np.array([180, 255, 255], np.uint8)
+        red_l = np.array([3, 120, 120], np.uint8)
+        red_u = np.array([8, 255, 255], np.uint8)
         red_m = cv2.inRange(hsvFrame, red_l, red_u)
 
         # Rango para el color verde
-        green_l = np.array([40, 100, 50], np.uint8)
-        green_u = np.array([90, 255, 255], np.uint8)
+        green_l = np.array([50, 50, 50], np.uint8)
+        green_u = np.array([80, 255, 255], np.uint8)
         green_m = cv2.inRange(hsvFrame, green_l, green_u)
 
         # Rango para el color azul
         blue_l = np.array([100, 150, 125], np.uint8)
-        blue_u = np.array([110, 255, 255], np.uint8)
+        blue_u = np.array([105, 255, 255], np.uint8)
         blue_m = cv2.inRange(hsvFrame, blue_l, blue_u)
 
  
@@ -109,7 +109,7 @@ def ColorTracking():
 
 
         cv2.imshow("Output", img)
-        cv2.imshow("Mask", red_m)
+        #cv2.imshow("Red Mask", red_m)
         if cv2.waitKey(10) & 0xFF == ord('q'):
             cap.release()
             cv2.destroyAllWindows()
