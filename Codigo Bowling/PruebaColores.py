@@ -1,4 +1,3 @@
-
 import cv2
 import time
 import numpy as np
@@ -19,17 +18,23 @@ def ColorTracking():
         hsvFrame = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # Rango para el color rojo
-        red_l = np.array([3, 120, 120], np.uint8)
-        red_u = np.array([8, 255, 255], np.uint8)
+        #red_l = np.array([3, 50, 50], np.uint8)
+        #red_u = np.array([10, 255, 255], np.uint8)
+        #red_m = cv2.inRange(hsvFrame, red_l, red_u)
+
+        # Rango para color rojo con mucha luz
+        red_l = np.array([165, 100, 100], np.uint8)
+        red_u = np.array([180, 255, 255], np.uint8)
         red_m = cv2.inRange(hsvFrame, red_l, red_u)
+    
 
         # Rango para el color verde
-        green_l = np.array([50, 50, 50], np.uint8)
-        green_u = np.array([80, 255, 255], np.uint8)
+        green_l = np.array([40, 50, 50], np.uint8)
+        green_u = np.array([90, 255, 255], np.uint8)
         green_m = cv2.inRange(hsvFrame, green_l, green_u)
 
         # Rango para el color azul
-        blue_l = np.array([100, 150, 125], np.uint8)
+        blue_l = np.array([100, 125, 125], np.uint8)
         blue_u = np.array([105, 255, 255], np.uint8)
         blue_m = cv2.inRange(hsvFrame, blue_l, blue_u)
 
