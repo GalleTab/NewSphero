@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Creado en Octubre 2022
-
 @author: Mauricio Gallegos
 Versión "3.0"
-
 Descripción: Este programa reconoce los colores verde y rojo, además rastrea el color azul que será el sphero.
 Recolectando las coordenadas de los colores, calibra al sphero para poder hacer que el sphero vaya hacia los colores.
-
-
 """
 
 ### Realizar Matríz de Velocidad, Distancia Tiempo
@@ -40,8 +36,21 @@ bigname = "SB-AA12"
 smallname = "SM-830E"
 
 
-### Empezar la Captura ###
-cap = cv2.VideoCapture(1) # 1 es un ID de una camara externa
+# Inicializa la camara
+try:
+	cap = cv2.VideoCapture(1)
+	if not cap.isOpened():
+		# Si no se pudo abrir la cámara externa
+		raise ValueError("No se pudo abrir la cámara externa")  
+except Exception as e:
+	cap = cv2.VideoCapture(0) 	# Abrr cámara interna
+else:
+	# Si se abrió la camata externa, no es necesario hacer nada
+	pass	
+finally:
+	if not cap.isOpened():
+		print("Ninguna camara")
+	pass
 
 
 ### Modificar Parametros de Salida de la Captura ###
@@ -54,8 +63,8 @@ cap = cv2.VideoCapture(1) # 1 es un ID de una camara externa
 # Con el Parametro 10 nos referimos a CAP_PROP_BRIGHTNESS: "Height of the frames in the video stream."
 # El segundo parametro de la función set es el valor en pixeles que vamos a asignar
 
-cap.set(3, frameWidth)      
-cap.set(4, frameHeight)     
+#cap.set(3, frameWidth)      
+#cap.set(4, frameHeight)     
 
 ### Variables de Perspectiva
 width, height = 8064, 3465
@@ -69,13 +78,13 @@ pts2 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
 # dst Coordinates of the corresponding quadrangle vertices in the destination image.
 matrix = cv2.getPerspectiveTransform(pts1, pts2)
 
-
+[[70, 60, 63, 85, 255, 255], [3, 130, 100, 8, 255, 255]]
 
 ### Pin Color Data ###
-myColors_pins = [[50, 50, 50, 80, 255, 255],  # Green Pin
+myColors_pins = [[70, 60, 63, 85, 255, 255],  # Green Pin
                 # [100, 150, 125, 105, 255, 255],  # Blue pin
                 # [85, 75, 165, 125, 230, 255],  # Blue pin
-                 [3, 50, 50, 10, 255, 255]]  # orange pin
+                 [3, 130, 100, 8, 255, 255]]  # orange pin
 
 ### Pin Coordinate Array ###
 pinCoords = [[0, 0], [0, 0], [0, 0]]
@@ -328,11 +337,5 @@ def main():
 
 
 
-
 if __name__ == "__main__":
     main()
-
-
-
-
-

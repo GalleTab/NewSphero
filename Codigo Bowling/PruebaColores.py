@@ -23,14 +23,14 @@ def ColorTracking():
         #red_m = cv2.inRange(hsvFrame, red_l, red_u)
 
         # Rango para color rojo con mucha luz
-        red_l = np.array([165, 100, 100], np.uint8)
-        red_u = np.array([180, 255, 255], np.uint8)
+        red_l = np.array([3, 108, 195], np.uint8)
+        red_u = np.array([6, 173, 255], np.uint8)
         red_m = cv2.inRange(hsvFrame, red_l, red_u)
     
 
         # Rango para el color verde
-        green_l = np.array([40, 50, 50], np.uint8)
-        green_u = np.array([90, 255, 255], np.uint8)
+        green_l = np.array([82, 64, 63], np.uint8)
+        green_u = np.array([90, 104, 255], np.uint8)
         green_m = cv2.inRange(hsvFrame, green_l, green_u)
 
         # Rango para el color azul
