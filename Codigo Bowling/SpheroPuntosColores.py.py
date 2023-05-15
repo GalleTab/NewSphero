@@ -45,6 +45,9 @@ finally:
 		print("Ninguna camara")
 	pass
 
+
+### Modificar Parametros de Salida de la Captura ### 
+
 ### Variables de Perspectiva
 width, height = 8064, 3465
 
@@ -60,8 +63,10 @@ matrix = cv2.getPerspectiveTransform(pts1, pts2)
 [[70, 60, 63, 85, 255, 255], [3, 130, 100, 8, 255, 255]]
 
 ### Pin Color Data ###
-myColors_pins = [[75, 89, 97, 80, 128, 145],  # Green Pin
-                 [4, 117, 98, 10, 197, 152]]  # Red pin
+myColors_pins = [[88, 130, 200, 92, 155, 240],  # Green Pin
+                # [100, 150, 125, 105, 255, 255],  # Blue pin
+                # [85, 75, 165, 125, 230, 255],  # Blue pin
+                 [0, 80, 86, 15, 255, 150]]  # orange pin
 
 ### Pin Coordinate Array ###
 pinCoords = [[0, 0], [0, 0], [0, 0]]
@@ -151,7 +156,7 @@ def getPinLocation(numPull):
         findColor(imgOut, myColors_pins, pinCoords)
         numPull -= 1
 
-### Guarda las coordenadas del robot en el arreglo de coordenadas del sphero ###
+
 def getSpheroLocation(numPull):
     while numPull > 0:
         success, img = cap.read()
